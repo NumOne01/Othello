@@ -10,7 +10,7 @@ int stable_pieces(char [][8],char);
 int minimax(char [][8],int,char [2],char);
 int count_corners(char [][8],char);
 int evaluation(char [][8],char);
-int free_neighbors(int i, int j);
+int interial_pieces(int,int,char [][8]);
 int main(int argc,char* argv[]){
     char field[8][8],player;
 	char best_chose[2];
@@ -123,14 +123,28 @@ int evaluation(char field[][8],char player){
 	copy(field,temp_field2);
 	findMine(temp_field2,opposit,&count_mobility2);
 	if(count_mobility1==0)
-		score-=50;
+		score-=50-64;
 	if(count_mobility2==0)
-		score+=50;	
+		score+=50+64;	
 	int count_piece1=count_piece(field,player);
 	int count_piece2=count_piece(field,opposit);
+	int player_in = 0; int opposit_in = 0; // counts for open spaces neighboring a player/comp's pieces
+	for (int i=1; i<9;i++) 
+		for (int j=1; j<9; j++) {
+			if (field[i][j] == player) {
+				//add count to sc
+				player_in += interial_pieces(i,j,field);
+			}
+			if (field[i][j] == opposit) {
+				//add count to sp
+				opposit_in += interial_pieces(i,j,field);
+			}
+		}
+
+	score+=(opposit_in-player_in+64)*10;
 	int count_corners1=count_corners(field,player);
 	int count_corners2=count_corners(field,opposit);
-	score+=(count_corners1-count_corners2+64)*1000+(count_mobility1-count_mobility2+64)*100+(count_piece1-count_piece2+64)*10;
+	score+=(count_corners1-count_corners2+64)*200+(count_mobility1-count_mobility2+64)*20+(count_piece1-count_piece2+64)*10;
 	return score;
 }
 int count_piece(char field[][8],char player){
@@ -153,29 +167,26 @@ int count_corners(char field[][8],char player){
 		count++;
 	return count;
 }
-/*
-int free_neighbors(int i, int j) {
-	int count = 0;
 
-	// examine the 8 possible neighborings unless not possible positions
-	if ((i+1)>0 && j>0 && (i+1)<9 && j<9 && get_square(i+1, j) == 0)
+int interial_pieces(int i, int j,char field[][8]) {
+	int count = 0;
+	if ((i+1)>0 && j>0 && (i+1)<9 && j<9 && field[i+1][j] == 0)
 		count++;
-	if ((i+1)>0 && (j-1)>0 && (i+1)<9 && (j-1)<9 && get_square(i+1, j-1) == 0)
+	if ((i+1)>0 && (j-1)>0 && (i+1)<9 && (j-1)<9 && field[i+1][j+1] == 0)
 		count++;
-	if (i>0 && (j-1)>0 && i<9 && (j-1)<9 && get_square(i, j-1) == 0)
+	if (i>0 && (j-1)>0 && i<9 && (j-1)<9 && field[i][j-1] == 0)
 		count++;
-	if ((i-1)>0 && (j-1)>0 && (i-1)<9 && (j-1)<9 && get_square(i-1, j-1) == 0)
+	if ((i-1)>0 && (j-1)>0 && (i-1)<9 && (j-1)<9 && field[i-1][j-1] == 0)
 		count++;
-	if ((i-1)>0 && j>0 && (i-1)<9 && j<9 && get_square(i-1, j) == 0)
+	if ((i-1)>0 && j>0 && (i-1)<9 && j<9 && field[i-1][j] == 0)
 		count++;
-	if ((i-1)>0 && (j+1)>0 && (i-1)<9 && (j+1)<9 && get_square(i-1, j+1) == 0)
+	if ((i-1)>0 && (j+1)>0 && (i-1)<9 && (j+1)<9 && field[i-1][j+1] == 0)
 		count++;
-	if (i>0 && (j+1)>0 && i<9 && (j+1)<9 && get_square(i, j+1) == 0)
+	if (i>0 && (j+1)>0 && i<9 && (j+1)<9 && field[i][j+1] == 0)
 		count++;
-	if ((i+1)>0 && (j+1)>0 && (i+1)<9 && (j+1)<9 && get_square(i+1, j+1) == 0)
+	if ((i+1)>0 && (j+1)>0 && (i+1)<9 && (j+1)<9 && field[i+1][j+1] == 0)
 		count++;
 
 	return count;
 	}
-	*/
 
