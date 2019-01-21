@@ -40,7 +40,7 @@ void findDirection(char field[][8],int r,int c,int row,int col,char player,int *
 	else
 		opposit='1';	
 	while(checkLimit(r+(count*row),c+(count*col))){
-		if(field[r+(count*row)][c+(count*col)] == '0'){
+		if(field[r+(count*row)][c+(count*col)] == '0' || field[r+(count*row)][c+(count*col)] == '*'){
 			break;
 		}
 		if(field[r+(count*row)][c+(count*col)] == opposit)                     
@@ -50,7 +50,7 @@ void findDirection(char field[][8],int r,int c,int row,int col,char player,int *
 			}
         count++;
 	}
-} 
+}
 
 void findMine(char field[][8],char player,int *move){
 	int i,j;
@@ -61,8 +61,9 @@ void findMine(char field[][8],char player,int *move){
 				for(row=-1;row<=1;row++)
 					for(col=-1;col<=1;col++){
 						if(row==0 && col==0);
-						else if(checkLimit(i+row,j+col))
+						else if(checkLimit(i+row,j+col)){
 							findDirection(field,i+row,j+col,row,col,player,move);
+						}
 					}
 			}
 }
@@ -78,20 +79,15 @@ void printField(char field[][8]){
 int minimax(char field[][8],int best_score,char best_chose[2],char player){	
 		int move=0;
 		findMine(field,player,&move);	
-		//printField(field);
-		//puts("");
 		if(move==0)
 			return evaluation(field,player);
 		else{
 			char temp_field[8][8];
-			copy(temp_field,field);
 			for(int i=0;i<8;i++)
 				for(int j=0;j<8;j++)
 					if(field[i][j]=='*'){
 						copy(temp_field,field);
 						temp_field[i][j]=player;
-						//printField(temp_field);
-						//puts("");
 						int score=evaluation(temp_field,player);
 						if(score>best_score){
 							best_score=score;
@@ -104,7 +100,9 @@ int minimax(char field[][8],int best_score,char best_chose[2],char player){
 void copy(char temp[][8],char field[][8]){
 	for(int i=0;i<8;i++)
 		for(int j=0;j<8;j++){
-
+			if(field[i][j]=='*')
+				temp[i][j]='0';
+			else
 				temp[i][j]=field[i][j];
 		}
 }
@@ -112,7 +110,7 @@ int evaluation(char field[][8],char player){
 	int count_mobility1=0,score=0;
 	char opposit;
 	char temp_field1[8][8];
-	copy(field,temp_field1);
+	copy(temp_field1,field);
 	findMine(temp_field1,player,&count_mobility1);
 	if(player=='1')
 		opposit='2';
@@ -120,7 +118,7 @@ int evaluation(char field[][8],char player){
 		opposit='1';
 	int count_mobility2=0;
 	char temp_field2[8][8];
-	copy(field,temp_field2);
+	copy(temp_field2,field);
 	findMine(temp_field2,opposit,&count_mobility2);
 	if(count_mobility1==0)
 		score-=50-64;
